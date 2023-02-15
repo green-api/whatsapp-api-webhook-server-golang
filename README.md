@@ -77,7 +77,7 @@ go get github.com/green-api/whatsapp-api-webhook-server-golang
 Установка:
 
 ```shell
-wget https://raw.githubusercontent.com/Amele9/whatsapp-api-webhook-server-golang/master/examples/main.go
+wget https://raw.githubusercontent.com/green-api/whatsapp-api-webhook-server-golang/master/examples/main.go
 ```
 
 Запуск:
