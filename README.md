@@ -104,7 +104,6 @@ import (
 webhook := pkg.Webhook{
     Address:      ":80",
     Pattern:      "/",
-    WebhookToken: "FV8OtZ8BmXKqM6Fot74D",
 }
 ```
 

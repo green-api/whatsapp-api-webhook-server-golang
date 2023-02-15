@@ -9,9 +9,8 @@ import (
 
 func main() {
 	webhook := pkg.Webhook{
-		Address:      ":80",
-		Pattern:      "/",
-		WebhookToken: "FV8OtZ8BmXKqM6Fot74D",
+		Address: ":5000",
+		Pattern: "/",
 	}
 
 	err := webhook.StartServer(func(body map[string]interface{}) {
