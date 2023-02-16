@@ -29,6 +29,10 @@ func (w Webhook) StartServer(handler func(map[string]interface{})) error {
 			log.Fatal(err)
 		}
 
+		if !json.Valid(body) {
+			return
+		}
+
 		var data map[string]interface{}
 
 		err = json.Unmarshal(body, &data)
