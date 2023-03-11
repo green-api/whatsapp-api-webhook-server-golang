@@ -1,29 +1,27 @@
 # whatsapp-api-webhook-server-golang
 
-whatsapp-api-webhook-server-golang - библиотека на Go, созданная для интеграции с WhatsApp через API
-сервиса [GREEN API](https://green-api.com/). Чтобы начать использовать библиотеку, вам нужно получить ID и token
-аккаунта в [личном кабинете](https://console.green-api.com/).
+whatsapp-api-webhook-server-golang - библиотека для интеграции с мессенджером WhatsApp через API
+сервиса [green-api.com](https://green-api.com/). Чтобы воспользоваться библиотекой, нужно получить регистрационный токен
+и ID аккаунта в [личном кабинете](https://console.green-api.com/). Есть бесплатный тариф аккаунта разработчика.
 
 ## API
 
-Документация к REST API находится [здесь](https://green-api.com/docs/api/). Библиотека является оберткой к REST API,
+Документация к REST API находится по [ссылке](https://green-api.com/docs/api/). Библиотека является оберткой к REST API,
 поэтому документация по ссылке выше применима и к самой библиотеке.
 
-## Подготовка среды
+## Авторизация
 
-На сервере должен быть установлен Go. Установить Go можно так:
+Чтобы отправить сообщение или выполнить другие методы Green API, аккаунт WhatsApp в приложении телефона должен быть в
+авторизованном состоянии. Для авторизации аккаунта перейдите в [личный кабинет](https://console.green-api.com/) и
+сканируйте QR-код с использованием приложения WhatsApp.
 
-```shell
-snap install go --classic
-```
+## Пример подготовки среды для Ubuntu Server
 
-Проверьте, что вы установили Go:
+### Установка Go
 
-```shell
-go version
-```
+На сервере должен быть установлен Go. [Инструкция по установке Go](https://go.dev/doc/install).
 
-### Пример подготовки среды на Ubuntu Server
+### Обновление системы
 
 Обновим систему:
 
@@ -31,6 +29,8 @@ go version
 sudo apt update
 sudo apt upgrade -y
 ```
+
+### Брандмауэр
 
 Настроим брандмауэр:
 
@@ -60,33 +60,21 @@ sudo ufw allow https
 sudo ufw enable
 ```
 
-## Как перенаправить входящие уведомления на сервер
+## Как запустить веб-сервер
 
-Чтобы перенаправить входящие уведомления на сервер, нужно в личном кабинете установить адрес отправки уведомлений (URL).
+### Установка
 
-![](https://raw.githubusercontent.com/green-api/whatsapp-api-webhook-server-python/master/media/ChangeWebhookServerURL.png)
-
-## Установка
+Не забудьте создать модуль:
 
 ```shell
-go get github.com/green-api/whatsapp-api-webhook-server-golang
+go mod init example
 ```
-
-### Установка и запуск примера
 
 Установка:
 
 ```shell
-wget https://raw.githubusercontent.com/green-api/whatsapp-api-webhook-server-golang/master/examples/main.go
+go get github.com/green-api/whatsapp-api-webhook-server-golang
 ```
-
-Запуск:
-
-```shell
-go run main.go
-```
-
-## Пример
 
 ### Импорт
 
@@ -96,7 +84,9 @@ import (
 )
 ```
 
-### Как инициализировать объект
+### Примеры
+
+#### Как инициализировать объект
 
 Атрибут WebhookToken является опциональным.
 
@@ -107,10 +97,12 @@ webhook := pkg.Webhook{
 }
 ```
 
-### Запуск сервера
+#### Как запустить веб-сервер
 
 Функция StartServer принимает функцию-обработчик. Функция-обработчик должна содержать 1
 параметр (`body map[string]interface{}`). При получении нового уведомления ваша функция-обработчик будет выполнена.
+
+Ссылка на пример: [main.go](examples/main.go).
 
 ```
 _ := webhook.StartServer(func(body map[string]interface{}) {
@@ -118,6 +110,16 @@ _ := webhook.StartServer(func(body map[string]interface{}) {
 })
 ```
 
+### Запуск приложения
+
+```shell
+go run main.go
+```
+
+## Документация по методам сервиса
+
+[Документация по методам сервиса](https://green-api.com/docs/api/)
+
 ## Лицензия
 
-Лицензия MIT. [LICENSE](LICENSE)
+Лицензировано на условиях MIT. Смотрите файл [LICENSE](LICENSE).
