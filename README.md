@@ -1,82 +1,83 @@
 # whatsapp-api-webhook-server-golang
 
-whatsapp-api-webhook-server-golang - библиотека для интеграции с мессенджером WhatsApp через API
-сервиса [green-api.com](https://green-api.com/). Чтобы воспользоваться библиотекой, нужно получить регистрационный токен
-и ID аккаунта в [личном кабинете](https://console.green-api.com/). Есть бесплатный тариф аккаунта разработчика.
+- [Документация на русском языке](docs/README_RU.md).
+
+whatsapp-api-webhook-server-golang is a library for integration with WhatsApp messenger using the API
+service [green-api.com](https://green-api.com/en/). You should get a registration token and an account ID in
+your [personal cabinet](https://console.green-api.com/) to use the library. There is a free developer account tariff.
 
 ## API
 
-Документация к REST API находится по [ссылке](https://green-api.com/docs/api/). Библиотека является оберткой к REST API,
-поэтому документация по ссылке выше применима и к самой библиотеке.
+The documentation for the REST API can be found at the [link](https://green-api.com/en/docs/). The library is a wrapper
+for the REST API, so the documentation at the link above also applies.
 
-## Авторизация
+## Authorization
 
-Чтобы отправить сообщение или выполнить другие методы Green API, аккаунт WhatsApp в приложении телефона должен быть в
-авторизованном состоянии. Для авторизации аккаунта перейдите в [личный кабинет](https://console.green-api.com/) и
-сканируйте QR-код с использованием приложения WhatsApp.
+To send a message or perform other Green API methods, the WhatsApp account in the phone app must be authorized. To
+authorize the account, go to your [cabinet](https://console.green-api.com/) and scan the QR code using the WhatsApp app.
 
-## Пример подготовки среды для Ubuntu Server
+## Example of preparing the environment for Ubuntu Server
 
-### Установка Go
+### Go Installation
 
-На сервере должен быть установлен Go. [Инструкция по установке Go](https://go.dev/doc/install).
+Go must be installed on the server. [Go installation instructions](https://go.dev/doc/install).
 
-### Обновление системы
+### Updating the system
 
-Обновим систему:
+Update the system:
 
 ```shell
 sudo apt update
 sudo apt upgrade -y
 ```
 
-### Брандмауэр
+### Firewall
 
-Настроим брандмауэр:
+Set up the firewall:
 
-Разрешим соединение по SSH:
+Allow the SSH connection:
 
 ```shell
 sudo ufw allow ssh
 ```
 
-Базовые правила:
+Base rules:
 
 ```shell
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
 ```
 
-Разрешаем соединения по HTTP и HTTPS:
+Allow HTTP and HTTPS connections:
 
 ```shell
 sudo ufw allow http
 sudo ufw allow https
 ```
 
-Активируем брандмауэр:
+Enable the firewall:
 
 ```shell
 sudo ufw enable
 ```
 
-## Как запустить веб-сервер
+## How to run the web server
 
-### Установка
+### Installation
 
-Не забудьте создать модуль:
+Do not forget to create a module:
 
 ```shell
 go mod init example
 ```
 
-Установка:
+Installation:
 
 ```shell
 go get github.com/green-api/whatsapp-api-webhook-server-golang
 ```
 
-### Импорт
+### Import
 
 ```
 import (
@@ -84,11 +85,11 @@ import (
 )
 ```
 
-### Примеры
+### Examples
 
-#### Как инициализировать объект
+#### How to initialize an object
 
-Атрибут WebhookToken является опциональным.
+The WebhookToken attribute is optional.
 
 ```
 webhook := pkg.Webhook{
@@ -97,12 +98,12 @@ webhook := pkg.Webhook{
 }
 ```
 
-#### Как запустить веб-сервер
+#### How to run the web server
 
-Функция StartServer принимает функцию-обработчик. Функция-обработчик должна содержать 1
-параметр (`body map[string]interface{}`). При получении нового уведомления ваша функция-обработчик будет выполнена.
+The StartServer function takes a handler function. The handler function must have 1
+parameter (`body map[string]interface{}`). When a new notification is received, your handler function will be executed.
 
-Ссылка на пример: [main.go](examples/main.go).
+Link to example: [main.go](examples/main.go).
 
 ```
 _ := webhook.StartServer(func(body map[string]interface{}) {
@@ -110,19 +111,19 @@ _ := webhook.StartServer(func(body map[string]interface{}) {
 })
 ```
 
-### Запуск приложения
+### Running the application
 
 ```shell
 go run main.go
 ```
 
-## Документация по методам сервиса
+## Service methods documentation
 
-[Документация по методам сервиса](https://green-api.com/docs/api/)
+[Service methods documentation](https://green-api.com/en/docs/api/)
 
-## Лицензия
+## License
 
-Лицензировано на условиях [
+Licensed under [
 Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
-](https://creativecommons.org/licenses/by-nd/4.0/).
-Смотрите файл [LICENSE](LICENSE).
+](https://creativecommons.org/licenses/by-nd/4.0/) terms.
+Please see file [LICENSE](LICENSE).
