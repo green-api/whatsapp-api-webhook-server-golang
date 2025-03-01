@@ -1,0 +1,510 @@
+{
+  "$id": "schemas",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "commonSchemaComponents": {
+      "type": "object",
+      "properties": {
+        "quotaData": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "method": {
+              "type": "string"
+            },
+            "used": {
+              "type": "integer"
+            },
+            "total": {
+              "type": "integer"
+            },
+            "status": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          },
+          "required": ["method", "used", "total", "status", "description"],
+          "additionalProperties": true
+        },
+
+
+        "instanceData": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "idInstance": {
+              "type": "integer"
+            },
+            "wid": {
+              "type": "string"
+            },
+            "typeInstance": {
+              "type": "string"
+            }
+          },
+          "required": ["idInstance", "wid", "typeInstance"],
+          "additionalProperties": true
+        },
+
+        "senderData": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "chatId": {
+              "type": "string"
+            },
+            "chatName": {
+              "type": "string"
+            },
+            "sender": {
+              "type": "string"
+            },
+            "senderName": {
+              "type": "string"
+            },
+            "senderContactName": {
+              "type": "string"
+            }
+          },
+          "required": ["chatId", "sender", "senderName"],
+          "additionalProperties": true
+        },
+
+        "messageData": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "typeMessage": {
+              "type": "string"
+            },
+
+            "extendedTextMessageData": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "previewType": {
+                  "type": "string"
+                },
+                "jpegThumbnail": {
+                  "type": "string"
+                },
+                "forwardingScore": {
+                  "type": "integer"
+                },
+                "isForwarded": {
+                  "type": "boolean"
+                }
+              },
+              "anyOf": [
+                { "required": ["text"] },
+                { "required": ["description"] },
+                { "required": ["title"] },
+                { "required": ["previewType"] },
+                { "required": ["jpegThumbnail"] },
+                { "required": ["isForwarded"] }
+              ],
+              "additionalProperties": true
+            },
+
+            "textMessageData": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object",
+              "properties": {
+                "textMessage": {
+                  "type": "string"
+                }
+              },
+              "required": ["textMessage"],
+              "additionalProperties": true
+            },
+
+            "fileMessageData": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object",
+              "properties": {
+                "downloadUrl": {
+                  "type": "string"
+                },
+                "caption": {
+                  "type": "string"
+                },
+                "fileName": {
+                  "type": "string"
+                },
+                "jpegThumbnail": {
+                  "type": "string"
+                },
+                "mimeType": {
+                  "type": "string"
+                },
+                "forwardingScore": {
+                  "type": "integer"
+                },
+                "isForwarded": {
+                  "type": "boolean"
+                },
+                "isAnimated": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "downloadUrl",
+                "caption",
+                "fileName",
+                "jpegThumbnail",
+                "mimeType",
+                "forwardingScore",
+                "isForwarded",
+                "isAnimated"
+              ],
+              "additionalProperties": true
+            },
+
+            "contactMessageData": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object",
+              "properties": {
+                "displayName": {
+                  "type": "string"
+                },
+                "vcard": {
+                  "type": "string"
+                },
+                "forwardingScore": {
+                  "type": "integer"
+                },
+                "isForwarded": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "displayName",
+                "vcard",
+                "forwardingScore",
+                "isForwarded"
+              ],
+              "additionalProperties": true
+            },
+
+            "pollMessageData": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "multipleAnswers": {
+                  "type": "boolean"
+                }
+              },
+              "required": ["name"],
+              "additionalProperties": true
+            },
+
+            "locationMessageData": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object",
+              "properties": {
+                "nameLocation": {
+                  "type": "string"
+                },
+                "address": {
+                  "type": "string"
+                },
+                "jpegThumbnail": {
+                  "type": "string"
+                },
+                "latitude": {
+                  "type": "number"
+                },
+                "longitude": {
+                  "type": "number"
+                },
+                "forwardingScore": {
+                  "type": "integer"
+                },
+                "isForwarded": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "nameLocation",
+                "address",
+                "jpegThumbnail",
+                "latitude",
+                "longitude",
+                "forwardingScore",
+                "isForwarded"
+              ],
+              "additionalProperties": true
+            },
+
+            "extendedTextMessage": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object",
+              "properties": {
+                "typeMessage": {
+                  "type": "string"
+                },
+                "extendedTextMessageData": {
+                  "$ref": "#/properties/commonSchemaComponents/properties/messageData/properties/extendedTextMessageData"
+                }
+              },
+              "required": ["typeMessage", "extendedTextMessageData"],
+              "additionalProperties": true
+            },
+
+            "statusExtendedTextMessageData": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "backgroundColor": {
+                  "type": "string"
+                },
+                "font": {
+                  "type": "string"
+                },
+                "participants": {
+                  "type": "array"
+                }
+              },
+              "required": ["text", "backgroundColor", "font"],
+              "additionalProperties": true
+            },
+
+            "fileMessage": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object",
+              "properties": {
+                "typeMessage": {
+                  "type": "string"
+                },
+                "fileMessageData": {
+                  "$ref": "#/properties/commonSchemaComponents/properties/messageData/properties/fileMessageData"
+                }
+              },
+              "required": ["typeMessage", "fileMessageData"],
+              "additionalProperties": true
+            },
+
+            "contactMessage": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object",
+              "properties": {
+                "typeMessage": {
+                  "type": "string"
+                },
+                "contactMessageData": {
+                  "$ref": "#/properties/commonSchemaComponents/properties/messageData/properties/contactMessageData"
+                }
+              },
+              "required": ["typeMessage", "contactMessageData"],
+              "additionalProperties": true
+            },
+
+            "pollMessage": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object",
+              "properties": {
+                "typeMessage": {
+                  "type": "string"
+                },
+                "pollMessageData": {
+                  "$ref": "#/properties/commonSchemaComponents/properties/messageData/properties/pollMessageData"
+                }
+              },
+              "required": ["typeMessage", "pollMessageData"],
+              "additionalProperties": true
+            },
+
+            "locationMessage": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object",
+              "properties": {
+                "typeMessage": {
+                  "type": "string"
+                },
+                "locationMessageData": {
+                  "$ref": "#/properties/commonSchemaComponents/properties/messageData/properties/locationMessageData"
+                }
+              },
+              "required": ["typeMessage", "locationMessageData"],
+              "additionalProperties": true
+            },
+
+            "quotedMessage": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object",
+              "properties": {
+                "stanzaId": {
+                  "type": "string"
+                },
+                "participant": {
+                  "type": "string"
+                },
+                "typeMessage": {
+                  "type": "string"
+                },
+                "textMessage": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "stanzaId",
+                "participant"
+              ],
+              "additionalProperties": true
+            },
+
+            "groupInviteMessageData": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object",
+              "properties": {
+                "groupJid": {
+                  "type": "string"
+                },
+                "inviteCode": {
+                  "type": "string"
+                },
+                "inviteExpiration": {
+                  "type": "object",
+                  "properties": {
+                    "low": {
+                      "type": "integer"
+                    },
+                    "high": {
+                      "type": "integer"
+                    },
+                    "unsigned": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": ["low", "high", "unsigned"],
+                  "additionalProperties": true
+                },
+                "groupName": {
+                  "type": "string"
+                },
+                "caption": {
+                  "type": "string"
+                },
+                "jpegThumbnail": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "groupJid",
+                "inviteCode",
+                "inviteExpiration",
+                "groupName",
+                "caption",
+                "jpegThumbnail"
+              ],
+              "additionalProperties": true
+            },
+            "buttonsMessage": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object"
+            },
+            "listMessage": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object"
+            },
+            "templateMessage": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object"
+            },
+            "buttonsResponseMessage": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object"
+            },
+            "templateButtonReplyMessage": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object"
+            },
+            "listResponseMessage": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object"
+            },
+            "editedMessageData": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object",
+              "properties": {
+                    "textMessage": {
+                      "type": "string"
+                    },
+                    "stanzaId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["textMessage", "stanzaId"],
+                  "additionalProperties": true
+            },
+            "deletedMessageData": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "object",
+              "properties": {
+                    "stanzaId": {
+                      "type": "string"
+                    },
+                    "typeMessage": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["stanzaId"],
+                  "additionalProperties": true
+            }
+          },
+
+          "required": ["typeMessage"],
+          "anyOf": [
+            { "required": ["extendedTextMessageData"] },
+            { "required": ["textMessageData"] },
+            { "required": ["fileMessageData"] },
+            { "required": ["contactMessageData"] },
+            { "required": ["pollMessageData"] },
+            { "required": ["locationMessageData"] },
+            { "required": ["extendedTextMessage"] },
+            { "required": ["statusExtendedTextMessageData"] },
+            { "required": ["fileMessage"] },
+            { "required": ["contactMessage"] },
+            { "required": ["pollMessage"] },
+            { "required": ["locationMessage"] },
+            { "required": ["quotedMessage"] },
+            { "required": ["groupInviteMessageData"] }, 
+            { "required": ["buttonsMessage"] },
+            { "required": ["listMessage"] },
+            { "required": ["templateMessage"] },
+            { "required": ["buttonsResponseMessage"] },
+            { "required": ["templateButtonReplyMessage"] },
+            { "required": ["deletedMessageData"] },
+            { "required": ["editedMessageData"] },
+            { "required": ["listResponseMessage"] }
+          ],
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

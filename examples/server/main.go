@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/green-api/whatsapp-api-webhook-server-golang/pkg"
+	"github.com/green-api/whatsapp-api-webhook-server-golang/pkg/server"
 )
 
 func main() {
-	webhook := pkg.Webhook{
+	webhook := server.Webhook{
 		Address: ":5000",
 		Pattern: "/",
 	}

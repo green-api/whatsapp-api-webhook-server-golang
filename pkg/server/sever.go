@@ -1,4 +1,4 @@
-package pkg
+package server
 
 import (
 	"encoding/json"
@@ -29,12 +29,14 @@ func (w Webhook) StartServer(handler func(map[string]interface{})) error {
 			log.Fatal(err)
 		}
 
+		// to do: handle
 		if !json.Valid(body) {
 			return
 		}
 
 		var data map[string]interface{}
 
+		// to do: remove fatal
 		err = json.Unmarshal(body, &data)
 		if err != nil {
 			log.Fatal(err)
