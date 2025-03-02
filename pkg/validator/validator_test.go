@@ -9,7 +9,7 @@ func TestValidWebhooks(t *testing.T) {
 	validator := Validator{}
 	err := validator.LoadJsonSchemas()
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatal("LoadJsonSchemas: " + err.Error())
 	}
 	for _, v := range validWebhooks {
 		if _, err := validator.Validate([]byte(v)); err != nil {
@@ -20,13 +20,14 @@ func TestValidWebhooks(t *testing.T) {
 
 func TestInvalidWebhooks(t *testing.T) {
 	validator := Validator{}
-	validator.LoadJsonSchemas()
+	err := validator.LoadJsonSchemas()
+	if err != nil {
+		log.Fatal("LoadJsonSchemas: " + err.Error())
+	}
 	for _, v := range invalidWebhooks {
 		if _, err := validator.Validate([]byte(v)); err == nil {
 			t.Fatalf("Invalid webhook passed validation. Body: \"%s\"", v)
-		} /* else {
-			t.Log(err.Error())
-		}*/
+		}
 	}
 }
 
@@ -98,6 +99,26 @@ var invalidWebhooks = []string{
 	`{
 		"incomingMessageReceived": {
 				"idInstance": 12312312321
+		}
+	}`,
+	`{
+		"typeWebhook": "incomingMessageReceived",
+		"instanceData": {
+			"idInstance": false,
+			"wid": "71231234567@c.us",
+			"typeInstance": "whatsapp"
+		},
+		"timestamp": 1703014480,
+		"idMessage": "165682394AEEFFB519B13DD51491DF65",
+		"senderData": {
+			"chatId": "71234567890@c.us",
+			"chatName": "Green API",
+			"sender": "71234567890@c.us",
+			"senderName": "Green API",
+			"senderContactName": "Green API inContacts"
+		},
+		"messageData": {
+			"typeMessage": "quotedMessage"
 		}
 	}`,
 }

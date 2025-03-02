@@ -6,16 +6,12 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 
-type jsonData struct {
-	Properties interface{} `json:"incomingMessageReceived"`
-}
-
 type Validator struct {
-	schemas        string
 	compiledSchema *jsonschema.Schema
 	compiler       *jsonschema.Compiler
 }
@@ -26,9 +22,10 @@ func (v *Validator) LoadJsonSchemas(dirPath ...string) error {
 		path = dirPath[0]
 	}
 
-	var allProperties map[string]interface{} // To store the merged properties
+	// properties from all .json files will be merged at this var
+	var allProperties map[string]interface{}
 
-	// Initialize the schema structure
+	// all json validation schema files must contains this fields:
 	schema := map[string]interface{}{
 		"$id":        "schemas",
 		"$schema":    "https://json-schema.org/draft/2020-12/schema",
@@ -37,29 +34,22 @@ func (v *Validator) LoadJsonSchemas(dirPath ...string) error {
 	}
 
 	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if !info.IsDir() {
-
-			// Read the JSON file
+		if !info.IsDir() && strings.Compare(info.Name(), "gererated-final-schemas.json") != 0 {
+			// Read each JSON file
 			data, err := os.ReadFile(path)
 			if err != nil {
 				return err
 			}
-
-			//var jsonData map[string]interface{}
 			err = json.Unmarshal(data, &schema)
 			if err != nil {
-				return err
+				return fmt.Errorf("not valid JSON passed to LoadJsonSchemas" + path)
 			}
 
 			// Check if the "properties" field exists in the file
 			if properties, ok := schema["properties"].(map[string]interface{}); ok {
 				if allProperties == nil {
-					allProperties = make(map[string]interface{}) // Initialize the properties map
+					allProperties = make(map[string]interface{})
 				}
-
 				// Merge the properties
 				for key, value := range properties {
 					allProperties[key] = value
@@ -85,13 +75,17 @@ func (v *Validator) LoadJsonSchemas(dirPath ...string) error {
 		return err
 	}
 
-	finalFilePath := filepath.Join(path, "final.json")
+	finalFilePath := filepath.Join(path, "gen", "gererated-final-schemas.json")
+	err = os.MkdirAll(filepath.Dir(finalFilePath), 0644)
+	if err != nil {
+		return err
+	}
+
 	err = os.WriteFile(finalFilePath, finalSchemaData, 0644)
 	if err != nil {
 		return err
 	}
 
-	// Compile the final schema (Check this part if "v.compiler" is needed)
 	v.compiler = jsonschema.NewCompiler()
 	v.compiledSchema, err = v.compiler.Compile(finalFilePath)
 	if err != nil {
@@ -102,9 +96,9 @@ func (v *Validator) LoadJsonSchemas(dirPath ...string) error {
 }
 
 func (v *Validator) Validate(body []byte) (map[string]interface{}, error) {
-	var data map[string]interface{}
+	var data map[string]interface{}           // return this JSON
+	var dataToValidate map[string]interface{} // adjuct JSON for validation
 
-	// json validation
 	if !json.Valid(body) {
 		return nil, fmt.Errorf("not valid JSON passed to Validator")
 	}
@@ -114,21 +108,24 @@ func (v *Validator) Validate(body []byte) (map[string]interface{}, error) {
 		return nil, err
 	}
 
-	fmt.Println(v.compiledSchema)
-	fmt.Println(data)
+	// every webhook must contain typeWebhook field
+	if data["typeWebhook"] == nil {
+		return nil, fmt.Errorf("no typeWebhook field")
+	}
+	typeWebhook := fmt.Sprintf("%s", data["typeWebhook"])
 
-	typeWebhook := ""
-	typeWebhook = fmt.Sprintf("%s", data["typeWebhook"])
-	t := `{"` + typeWebhook + `":` + string(body) + `}`
-	fmt.Println(t)
+	// adjuct JSON for validation schemas
+	jsonToValidateStr := "{\r\n\"" + typeWebhook + "\":\r\n" + string(body) + "\r\n}"
+	err = json.Unmarshal([]byte(jsonToValidateStr), &dataToValidate)
+	if err != nil {
+		return nil, err
+	}
 
 	// json-schema validation
-	result := v.compiledSchema.Validate(data)
+	result := v.compiledSchema.Validate(dataToValidate)
 	if result != nil {
 		log.Print(result.Error())
 		return nil, result
-		//fmt.Println(string(details))
-		//return fmt.Errorf("%s", details)
 	}
 	return data, nil
 }
