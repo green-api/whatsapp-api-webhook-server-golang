@@ -14,6 +14,7 @@ import (
 type Validator struct {
 	compiledSchema *jsonschema.Schema
 	compiler       *jsonschema.Compiler
+	schemasLoaded  bool
 }
 
 func (v *Validator) LoadJsonSchemas(dirPath ...string) error {
@@ -92,12 +93,12 @@ func (v *Validator) LoadJsonSchemas(dirPath ...string) error {
 		return err
 	}
 
+	v.schemasLoaded = true
 	return nil
 }
 
 func (v *Validator) Validate(body []byte) (map[string]interface{}, error) {
-	var data map[string]interface{}           // return this JSON
-	var dataToValidate map[string]interface{} // adjuct JSON for validation
+	var data map[string]interface{} // return this JSON
 
 	if !json.Valid(body) {
 		return nil, fmt.Errorf("not valid JSON passed to Validator")
@@ -108,6 +109,12 @@ func (v *Validator) Validate(body []byte) (map[string]interface{}, error) {
 		return nil, err
 	}
 
+	if !v.schemasLoaded {
+		return data, nil
+	}
+
+	// adjuct JSON for validation
+	var dataToValidate map[string]interface{}
 	// every webhook must contain typeWebhook field
 	if data["typeWebhook"] == nil {
 		return nil, fmt.Errorf("no typeWebhook field")
