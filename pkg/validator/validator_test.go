@@ -1,12 +1,18 @@
 package validator
 
-import "testing"
+import (
+	"log"
+	"testing"
+)
 
 func TestValidWebhooks(t *testing.T) {
 	validator := Validator{}
-	validator.LoadJsonSchemas()
+	err := validator.LoadJsonSchemas()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 	for _, v := range validWebhooks {
-		if err := validator.Validate([]byte(v)); err != nil {
+		if _, err := validator.Validate([]byte(v)); err != nil {
 			t.Fatalf("Valid webhook failed. Reason: %s, Body: \"%s\"", err.Error(), v)
 		}
 	}
@@ -16,9 +22,11 @@ func TestInvalidWebhooks(t *testing.T) {
 	validator := Validator{}
 	validator.LoadJsonSchemas()
 	for _, v := range invalidWebhooks {
-		if err := validator.Validate([]byte(v)); err == nil {
+		if _, err := validator.Validate([]byte(v)); err == nil {
 			t.Fatalf("Invalid webhook passed validation. Body: \"%s\"", v)
-		}
+		} /* else {
+			t.Log(err.Error())
+		}*/
 	}
 }
 
@@ -85,6 +93,11 @@ var validWebhooks = []string{
 }
 
 var invalidWebhooks = []string{
-	"{\r\n\"incomingMessageReceived\":123}",
+	//"{\r\n\"incomingMessageReceived\":123}",
 	//"{\r\n    \"typeWebhook\": \"incomingMessageReceived\", \"timestamp\": \"asd\"}\r\n",
+	`{
+		"incomingMessageReceived": {
+				"idInstance": 12312312321
+		}
+	}`,
 }

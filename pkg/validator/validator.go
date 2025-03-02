@@ -7,11 +7,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/kaptinlin/jsonschema"
+	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 
 type jsonData struct {
-	Properties interface{} `json:"properties"` // Adjust type if you know the structure of properties
+	Properties interface{} `json:"incomingMessageReceived"`
 }
 
 type Validator struct {
@@ -26,40 +26,45 @@ func (v *Validator) LoadJsonSchemas(dirPath ...string) error {
 		path = dirPath[0]
 	}
 
+	var allProperties map[string]interface{} // To store the merged properties
+
+	// Initialize the schema structure
+	schema := map[string]interface{}{
+		"$id":        "schemas",
+		"$schema":    "https://json-schema.org/draft/2020-12/schema",
+		"type":       "object",
+		"properties": allProperties,
+	}
+
 	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-
 		if !info.IsDir() {
+
+			// Read the JSON file
 			data, err := os.ReadFile(path)
 			if err != nil {
 				return err
 			}
 
-			var jsonData jsonData
-			err = json.Unmarshal(data, &jsonData)
+			//var jsonData map[string]interface{}
+			err = json.Unmarshal(data, &schema)
 			if err != nil {
 				return err
 			}
 
-			byteData, err := json.Marshal(jsonData.Properties)
-			if err != nil {
-				return err
-			}
-			var strData string
-			if len(v.schemas) > 0 {
-				if v.schemas[len(v.schemas)-1] == '}' {
-					v.schemas = v.schemas[:len(v.schemas)-1]
+			// Check if the "properties" field exists in the file
+			if properties, ok := schema["properties"].(map[string]interface{}); ok {
+				if allProperties == nil {
+					allProperties = make(map[string]interface{}) // Initialize the properties map
 				}
-				v.schemas += ","
-				if byteData[0] == '{' {
-					strData = string(byteData[1:])
+
+				// Merge the properties
+				for key, value := range properties {
+					allProperties[key] = value
 				}
-			} else {
-				strData = string(byteData)
 			}
-			v.schemas += strData
 		}
 		return nil
 	})
@@ -67,45 +72,63 @@ func (v *Validator) LoadJsonSchemas(dirPath ...string) error {
 		return err
 	}
 
-	//fmt.Println(v.schemas)
-
-	v.compiler = jsonschema.NewCompiler()
-	v.compiledSchema, err = v.compiler.Compile([]byte(v.schemas))
-	if err != nil {
-		log.Fatalf("Failed to compile schema: %v", err)
+	// Write the merged schema into a final file
+	finalSchema := map[string]interface{}{
+		"$id":        "schemas",
+		"$schema":    "https://json-schema.org/draft/2020-12/schema",
+		"type":       "object",
+		"properties": allProperties,
 	}
 
-	return err
+	finalSchemaData, err := json.MarshalIndent(finalSchema, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	finalFilePath := filepath.Join(path, "final.json")
+	err = os.WriteFile(finalFilePath, finalSchemaData, 0644)
+	if err != nil {
+		return err
+	}
+
+	// Compile the final schema (Check this part if "v.compiler" is needed)
+	v.compiler = jsonschema.NewCompiler()
+	v.compiledSchema, err = v.compiler.Compile(finalFilePath)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (v *Validator) Validate(body []byte) error {
+func (v *Validator) Validate(body []byte) (map[string]interface{}, error) {
 	var data map[string]interface{}
 
 	// json validation
 	if !json.Valid(body) {
-		return fmt.Errorf("not valid JSON passed to Validator")
+		return nil, fmt.Errorf("not valid JSON passed to Validator")
 	}
 
 	err := json.Unmarshal(body, &data)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	fmt.Println(v.compiledSchema)
 	fmt.Println(data)
 
-	/*typeWebhook := ""
+	typeWebhook := ""
 	typeWebhook = fmt.Sprintf("%s", data["typeWebhook"])
 	t := `{"` + typeWebhook + `":` + string(body) + `}`
-	fmt.Println(t)*/
+	fmt.Println(t)
 
 	// json-schema validation
 	result := v.compiledSchema.Validate(data)
-	if !result.IsValid() {
-		_, err := json.MarshalIndent(result.ToList(), "", "  ")
-		return err
+	if result != nil {
+		log.Print(result.Error())
+		return nil, result
 		//fmt.Println(string(details))
 		//return fmt.Errorf("%s", details)
 	}
-	return nil
+	return data, nil
 }
