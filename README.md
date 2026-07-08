@@ -114,11 +114,6 @@ _ := webhook.StartServer(func(body map[string]interface{}) {
 })
 ```
 
-**Features:**
-- Returns HTTP 401 for failed authorization
-- Returns HTTP 400 for invalid JSON
-- Properly handles request body cleanup with defer
-
 ### Running the application
 
 ```shell
