@@ -88,14 +88,17 @@ import (
 
 #### Как инициализировать объект
 
-Атрибут WebhookToken является опциональным.
-
 ```
 webhook := pkg.Webhook{
     Address:      ":80",
     Pattern:      "/",
+    WebhookToken: "your_token_here", // Опционально: для авторизации
 }
 ```
+
+**WebhookToken** является опциональным. Когда указан, сервер проверяет входящие запросы согласно:
+- **Bearer** авторизация: `Authorization: Bearer <token>`
+- **Basic** авторизация: `Authorization: Basic <base64-encoded-token>`
 
 #### Как запустить веб-сервер
 
