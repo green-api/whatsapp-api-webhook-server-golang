@@ -88,14 +88,17 @@ import (
 
 #### Как инициализировать объект
 
-Атрибут WebhookToken является опциональным.
-
 ```
 webhook := pkg.Webhook{
     Address:      ":80",
     Pattern:      "/",
+    WebhookToken: "your_token_here", // Опционально: для авторизации
 }
 ```
+
+**WebhookToken** является опциональным. Когда указан, сервер проверяет входящие запросы согласно:
+- **Bearer** авторизация: `Authorization: Bearer <token>`
+- **Basic** авторизация: `Authorization: Basic <base64-encoded-token>`
 
 #### Как запустить веб-сервер
 
@@ -109,6 +112,11 @@ _ := webhook.StartServer(func(body map[string]interface{}) {
     fmt.Println(body)
 })
 ```
+
+**Возможности:**
+- Возвращает HTTP 401 при ошибке авторизации
+- Возвращает HTTP 400 для невалидного JSON
+- Корректно закрывает тело запроса
 
 ### Запуск приложения
 

@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"io"
 	"log"
@@ -16,20 +17,24 @@ type Webhook struct {
 
 func (w Webhook) StartServer(handler func(map[string]interface{})) error {
 	http.HandleFunc(w.Pattern, func(writer http.ResponseWriter, request *http.Request) {
+		defer request.Body.Close()
+
 		if w.WebhookToken != "" {
-			token := request.Header.Get("Authorization")
-			token = strings.ReplaceAll(token, "Bearer ", "")
-			if token != w.WebhookToken {
+			if !w.validateToken(request.Header.Get("Authorization")) {
+				writer.WriteHeader(http.StatusUnauthorized)
 				return
 			}
 		}
 
 		body, err := io.ReadAll(request.Body)
 		if err != nil {
-			log.Fatal(err)
+			log.Printf("Error reading request body: %v", err)
+			writer.WriteHeader(http.StatusBadRequest)
+			return
 		}
 
 		if !json.Valid(body) {
+			writer.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
@@ -37,7 +42,9 @@ func (w Webhook) StartServer(handler func(map[string]interface{})) error {
 
 		err = json.Unmarshal(body, &data)
 		if err != nil {
-			log.Fatal(err)
+			log.Printf("Error unmarshaling JSON: %v", err)
+			writer.WriteHeader(http.StatusBadRequest)
+			return
 		}
 
 		handler(data)
@@ -46,4 +53,22 @@ func (w Webhook) StartServer(handler func(map[string]interface{})) error {
 	})
 
 	return http.ListenAndServe(w.Address, nil)
+}
+
+func (w Webhook) validateToken(authHeader string) bool {
+	if authHeader == "" {
+		return false
+	}
+
+	if strings.HasPrefix(authHeader, "Basic ") {
+		encoded := strings.TrimPrefix(authHeader, "Basic ")
+		decoded, err := base64.StdEncoding.DecodeString(encoded)
+		if err != nil {
+			return false
+		}
+		return string(decoded) == w.WebhookToken
+	}
+
+	token := strings.TrimPrefix(authHeader, "Bearer ")
+	return token == w.WebhookToken
 }

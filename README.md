@@ -89,14 +89,17 @@ import (
 
 #### How to initialize an object
 
-The WebhookToken attribute is optional.
-
 ```
 webhook := pkg.Webhook{
     Address:      ":80",
     Pattern:      "/",
+    WebhookToken: "your_token_here", // Optional: for authorization
 }
 ```
+
+**WebhookToken** is optional. When provided, the server validates incoming requests against:
+- **Bearer** authorization: `Authorization: Bearer <token>`
+- **Basic** authorization: `Authorization: Basic <base64-encoded-token>`
 
 #### How to run the web server
 
@@ -110,6 +113,11 @@ _ := webhook.StartServer(func(body map[string]interface{}) {
     fmt.Println(body)
 })
 ```
+
+**Features:**
+- Returns HTTP 401 for failed authorization
+- Returns HTTP 400 for invalid JSON
+- Properly handles request body cleanup with defer
 
 ### Running the application
 
